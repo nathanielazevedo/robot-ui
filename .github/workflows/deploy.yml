@@ -1,30 +1,49 @@
-name: Deploy React App to GitHub Pages
+name: Deploy
 
 on:
   push:
     branches:
       - main
 
-permissions:
-  contents: write # Allows GitHub Actions to push to gh-pages
-
 jobs:
-  build-deploy:
+  build:
+    name: Build
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Install Dependencies
-        run: yarn install
+      - name: Setup Node
+        uses: actions/setup-node@v3
 
-      - name: Build Project
-        run: yarn build
+      - name: Install dependencies
+        uses: bahmutov/yarn-install@v1
+
+      - name: Build project
+        run: yarn run build
+
+      - name: Upload production-ready build files
+        uses: actions/upload-artifact@v3
+        with:
+          name: production-files
+          path: ./dist
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: production-files
+          path: ./dist
 
       - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          branch: gh-pages
-          folder: dist # Change to "build" if using Create React App
-          token: ${{ secrets.GITHUB_TOKEN }} # Use GitHub's built-in authentication
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
