@@ -42,7 +42,7 @@ export default function ServoControl() {
 
   return (
     <div style={{ textAlign: "center", padding: "20px" }}>
-      <h1>ESP32 Servo Control</h1>
+      <h1>Nates robot hand</h1>
       <p>
         Current Angle:{" "}
         {currentAngle !== null ? `${currentAngle}°` : "Loading..."}
